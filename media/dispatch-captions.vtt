@@ -1,0 +1,18 @@
+WEBVTT - ASTRARESQ Emergency Dispatch Radio Transmission
+
+NOTE
+CSC413-8 Lab Exercise 2 Caption Stream
+Voice 1: Dispatch Control (HQ Tactical Dispatch)
+Voice 2: Ambulance Operator (Unit A-04 ALS Lead)
+
+00:00:00.500 --> 00:00:03.600
+<v Dispatch Control>Unit A-04, proceed to MG Road.</v>
+
+00:00:04.200 --> 00:00:06.800
+<v Ambulance Operator>Unit A-04 acknowledges.</v>
+
+00:00:07.400 --> 00:00:12.600
+<v Dispatch Control>Critical cardiac emergency reported. Confirm equipment readiness.</v>
+
+00:00:13.200 --> 00:00:16.800
+<v Ambulance Operator>Equipment confirmed. Proceeding to location.</v>

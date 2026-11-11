@@ -1,0 +1,3487 @@
+/* ==========================================================================
+   ASTRARESQ — EMERGENCY INCIDENT COMMAND & DISPATCH CONSOLE
+   CSC413-8 Lab Exercise 2 — Native HTML5 & Vanilla CSS3 Architecture
+   Zero JavaScript · 100% Pseudo-Class Driven · WCAG 2.1 AAA/AA Accessible
+   ========================================================================== */
+
+/* --------------------------------------------------------------------------
+   01. DESIGN TOKENS & CUSTOM PROPERTIES (:root)
+   -------------------------------------------------------------------------- */
+:root {
+    /* Color Palette: Operational Command Center */
+    --bg-primary: #080c12;
+    --bg-secondary: #0f1622;
+    --bg-card: #151e2c;
+    --bg-card-alt: #1a2536;
+    --bg-surface-elevated: #223044;
+
+    /* Accent Palette */
+    --accent-red: #ff2a44;
+    --accent-red-glow: rgba(255, 42, 68, 0.25);
+    --accent-cyan: #00f0ff;
+    --accent-cyan-glow: rgba(0, 240, 255, 0.25);
+    --accent-green: #00e676;
+    --accent-green-glow: rgba(0, 230, 118, 0.25);
+    --accent-amber: #ffb300;
+    --accent-amber-glow: rgba(255, 179, 0, 0.25);
+
+    /* Typography Colors */
+    --text-primary: #f2f7fc;
+    --text-secondary: #9cb0c6;
+    --text-muted: #5e738c;
+    --text-contrast: #ffffff;
+
+    /* Borders & Dividers */
+    --border-subtle: rgba(255, 255, 255, 0.08);
+    --border-technical: rgba(0, 240, 255, 0.2);
+    --border-active: #00f0ff;
+
+    /* Font Stacks */
+    --font-sans: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+    --font-mono: "SF Mono", "JetBrains Mono", "Cascadia Code", Consolas, "Courier New", monospace;
+
+    /* Layout & Elevation */
+    --radius-sm: 3px;
+    --radius-md: 6px;
+    --radius-lg: 10px;
+    --shadow-card: 0 4px 20px rgba(0, 0, 0, 0.4);
+    --shadow-glow: 0 0 15px rgba(0, 240, 255, 0.15);
+    --transition-snappy: 0.18s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+/* --------------------------------------------------------------------------
+   02. PSEUDO-CLASS: :where() RESET & BASELINE RESETS
+   Zero-specificity global baseline to preserve cascade predictability
+   -------------------------------------------------------------------------- */
+:where(*, *::before, *::after) {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+
+html {
+    font-size: 100%; /* 16px base */
+    scroll-behavior: smooth;
+    color-scheme: dark;
+}
+
+body {
+    background-color: var(--bg-primary);
+    color: var(--text-primary);
+    font-family: var(--font-sans);
+    line-height: 1.5;
+    min-height: 100vh;
+    overflow-x: hidden;
+    position: relative;
+    /* Technical console grid background */
+    background-image: 
+        linear-gradient(to right, rgba(0, 240, 255, 0.02) 1px, transparent 1px),
+        linear-gradient(to bottom, rgba(0, 240, 255, 0.02) 1px, transparent 1px);
+    background-size: 40px 40px;
+}
+
+/* --------------------------------------------------------------------------
+   03. PSEUDO-ELEMENTS: ::selection & ::placeholder
+   -------------------------------------------------------------------------- */
+::selection {
+    background-color: var(--accent-cyan);
+    color: var(--bg-primary);
+}
+
+::placeholder {
+    color: var(--text-muted);
+    font-family: var(--font-mono);
+    font-size: 0.85rem;
+    opacity: 0.8;
+}
+
+/* --------------------------------------------------------------------------
+   04. ACCESSIBILITY: SKIP LINK & FOCUS-VISIBLE
+   PSEUDO-CLASS: :focus-visible
+   -------------------------------------------------------------------------- */
+.skip-to-content {
+    position: absolute;
+    top: -100px;
+    left: 1rem;
+    background: var(--accent-cyan);
+    color: var(--bg-primary);
+    padding: 0.75rem 1.25rem;
+    font-family: var(--font-mono);
+    font-weight: 700;
+    text-decoration: none;
+    z-index: 9999;
+    border-radius: var(--radius-sm);
+    transition: top var(--transition-snappy);
+}
+
+.skip-to-content:focus {
+    top: 1rem;
+    outline: 3px solid var(--accent-red);
+}
+
+:focus-visible {
+    outline: 2px solid var(--accent-cyan);
+    outline-offset: 3px;
+}
+
+/* PSEUDO-CLASS: :is() for unified interactive states */
+:is(a, button, input, label, summary):focus-visible {
+    box-shadow: 0 0 10px var(--accent-cyan);
+}
+
+/* --------------------------------------------------------------------------
+   05. SECTION 1: COMMAND HEADER & TELEMETRY
+   -------------------------------------------------------------------------- */
+.command-header {
+    background: var(--bg-secondary);
+    border-bottom: 1px solid var(--border-technical);
+    position: sticky;
+    top: 0;
+    z-index: 1000;
+    box-shadow: 0 2px 15px rgba(0, 0, 0, 0.6);
+}
+
+.header-inner {
+    max-width: 90rem;
+    margin: 0 auto;
+    padding: 0.85rem 1.5rem;
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    align-items: center;
+    gap: 1rem;
+}
+
+.brand-cluster {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+}
+
+.brand-emblem {
+    width: 2.75rem;
+    height: 2.75rem;
+    background: var(--bg-primary);
+    border: 1px solid var(--accent-red);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: var(--radius-sm);
+    position: relative;
+}
+
+.emblem-symbol {
+    color: var(--accent-red);
+    font-size: 1.5rem;
+    font-weight: 900;
+}
+
+.emblem-pulse {
+    position: absolute;
+    inset: -3px;
+    border: 1px solid var(--accent-red);
+    border-radius: var(--radius-sm);
+    opacity: 0.4;
+    animation: beacon-pulse 2s infinite ease-out;
+}
+
+@keyframes beacon-pulse {
+    0% { transform: scale(1); opacity: 0.6; }
+    100% { transform: scale(1.25); opacity: 0; }
+}
+
+.brand-title {
+    font-size: 1.4rem;
+    font-weight: 900;
+    letter-spacing: 2px;
+    color: var(--text-primary);
+}
+
+.brand-sub {
+    font-size: 0.72rem;
+    font-family: var(--font-mono);
+    color: var(--accent-cyan);
+    letter-spacing: 1px;
+}
+
+.brand-tagline {
+    font-size: 0.68rem;
+    font-family: var(--font-mono);
+    color: var(--accent-red);
+    letter-spacing: 0.8px;
+    font-weight: 700;
+}
+
+.telemetry-cluster {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 0.75rem;
+    font-family: var(--font-mono);
+    font-size: 0.75rem;
+}
+
+.telemetry-badge {
+    background: var(--bg-primary);
+    border: 1px solid var(--border-technical);
+    padding: 0.35rem 0.65rem;
+    border-radius: var(--radius-sm);
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    color: var(--text-secondary);
+}
+
+.telemetry-badge strong {
+    color: var(--text-primary);
+}
+
+.badge-dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    display: inline-block;
+}
+
+.pulse-dot {
+    background: var(--accent-amber);
+    box-shadow: 0 0 8px var(--accent-amber);
+    animation: blink-dot 1.5s infinite;
+}
+
+.live-dot {
+    background: var(--accent-green);
+    box-shadow: 0 0 6px var(--accent-green);
+}
+
+@keyframes blink-dot {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.3; }
+}
+
+/* Command Navigation */
+.command-nav {
+    background: var(--bg-primary);
+    border-top: 1px solid var(--border-subtle);
+}
+
+.nav-list {
+    max-width: 90rem;
+    margin: 0 auto;
+    padding: 0 1.5rem;
+    list-style: none;
+    display: flex;
+    overflow-x: auto;
+    scrollbar-width: thin;
+    scrollbar-color: var(--accent-cyan) var(--bg-primary);
+}
+
+/* 5. Animated Navigation Underline */
+.nav-link {
+    display: block;
+    padding: 0.75rem 1.15rem;
+    color: var(--text-secondary);
+    font-family: var(--font-mono);
+    font-size: 0.8rem;
+    text-decoration: none;
+    white-space: nowrap;
+    position: relative;
+    transition: color 0.22s cubic-bezier(0.16, 1, 0.3, 1), background-color 0.22s ease;
+}
+
+.nav-link::after {
+    content: "";
+    position: absolute;
+    bottom: 0;
+    left: 50%;
+    width: 0;
+    height: 2px;
+    background: var(--accent-cyan);
+    box-shadow: 0 0 10px var(--accent-cyan);
+    transition: width 0.26s cubic-bezier(0.16, 1, 0.3, 1), left 0.26s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.nav-link:hover, .nav-link:focus-visible {
+    color: var(--accent-cyan);
+    background: rgba(0, 240, 255, 0.05);
+}
+
+.nav-link:hover::after, .nav-link:focus-visible::after {
+    width: 100%;
+    left: 0;
+}
+
+.nav-link.highlight-link {
+    color: var(--accent-amber);
+    font-weight: 700;
+}
+
+.nav-link.highlight-link::after {
+    background: var(--accent-amber);
+    box-shadow: 0 0 10px var(--accent-amber);
+}
+
+.nav-link.highlight-link:hover {
+    color: #ffffff;
+    background: rgba(255, 179, 0, 0.08);
+}
+
+/* --------------------------------------------------------------------------
+   06. SECTION WRAPPERS & TITLES
+   -------------------------------------------------------------------------- */
+.console-main {
+    max-width: 90rem;
+    margin: 0 auto;
+    padding: 1.5rem;
+    display: flex;
+    flex-direction: column;
+    gap: 2.5rem;
+}
+
+/* 7. SLIDE-IN NOTIFICATION PANELS (PURE CSS-ONLY) */
+.slide-in-banner {
+    background: linear-gradient(135deg, rgba(18, 26, 38, 0.98), rgba(26, 37, 54, 0.98));
+    border: 1px solid var(--accent-amber);
+    border-left: 4px solid var(--accent-amber);
+    border-radius: var(--radius-sm);
+    box-shadow: 0 8px 30px rgba(0, 0, 0, 0.6), 0 0 15px rgba(255, 179, 0, 0.2);
+    margin-bottom: 0;
+    position: relative;
+    overflow: hidden;
+    animation: slideInNotification 0.65s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+    transition: all 0.35s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+@keyframes slideInNotification {
+    from {
+        opacity: 0;
+        transform: translateY(-24px);
+        max-height: 0;
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+        max-height: 200px;
+    }
+}
+
+.broadcast-dismiss-checkbox {
+    position: absolute;
+    opacity: 0;
+    pointer-events: none;
+}
+
+/* Pure CSS Dismissal via :has() */
+.slide-in-banner:has(.broadcast-dismiss-checkbox:checked) {
+    opacity: 0;
+    transform: translateY(-15px) scale(0.97);
+    max-height: 0;
+    margin: 0;
+    padding-top: 0;
+    padding-bottom: 0;
+    border-width: 0;
+    pointer-events: none;
+}
+
+.banner-body {
+    padding: 0.9rem 1.25rem;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 1rem;
+}
+
+.banner-icon-cluster {
+    position: relative;
+    width: 2.2rem;
+    height: 2.2rem;
+    background: rgba(255, 179, 0, 0.12);
+    border: 1px solid var(--accent-amber);
+    border-radius: var(--radius-sm);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+}
+
+.banner-symbol {
+    font-size: 1.1rem;
+    color: var(--accent-amber);
+}
+
+.banner-beacon {
+    position: absolute;
+    inset: -3px;
+    border: 1px solid var(--accent-amber);
+    border-radius: var(--radius-sm);
+    animation: beacon-pulse 2s infinite ease-out;
+}
+
+.banner-text-block {
+    flex: 1;
+    min-width: 18rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0.2rem;
+}
+
+.banner-header-row {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    font-family: var(--font-mono);
+    font-size: 0.7rem;
+}
+
+.banner-tag {
+    color: var(--accent-amber);
+    font-weight: 800;
+    letter-spacing: 0.5px;
+}
+
+.banner-time {
+    color: var(--text-muted);
+}
+
+.banner-msg {
+    font-size: 0.82rem;
+    color: var(--text-primary);
+    line-height: 1.4;
+}
+
+.banner-dismiss-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+    padding: 0.45rem 0.85rem;
+    background: rgba(255, 179, 0, 0.15);
+    border: 1px solid var(--accent-amber);
+    border-radius: var(--radius-sm);
+    color: var(--accent-amber);
+    font-family: var(--font-mono);
+    font-size: 0.72rem;
+    font-weight: 800;
+    cursor: pointer;
+    user-select: none;
+    transition: all 0.18s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.banner-dismiss-btn:hover {
+    background: var(--accent-amber);
+    color: #000000;
+    box-shadow: 0 0 10px rgba(255, 179, 0, 0.4);
+}
+
+.banner-dismiss-btn:active {
+    transform: translateY(1.5px) scale(0.96);
+}
+
+.console-section {
+    background: var(--bg-secondary);
+    border: 1px solid var(--border-subtle);
+    border-radius: var(--radius-md);
+    padding: 1.5rem;
+    position: relative;
+    box-shadow: var(--shadow-card);
+}
+
+/* PSEUDO-CLASS: :target for direct console navigation */
+.console-section:target {
+    border-color: var(--accent-cyan);
+    box-shadow: 0 0 20px rgba(0, 240, 255, 0.3);
+}
+
+.section-title-bar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-bottom: 1px solid var(--border-technical);
+    padding-bottom: 0.85rem;
+    margin-bottom: 1.25rem;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+}
+
+.title-meta {
+    display: flex;
+    flex-direction: column;
+    gap: 0.2rem;
+}
+
+.subsystem-id {
+    font-family: var(--font-mono);
+    font-size: 0.7rem;
+    color: var(--accent-cyan);
+    letter-spacing: 1.5px;
+}
+
+.section-title {
+    font-size: 1.25rem;
+    font-weight: 800;
+    letter-spacing: 1.5px;
+    color: var(--text-contrast);
+}
+
+.section-status-tag {
+    font-family: var(--font-mono);
+    font-size: 0.7rem;
+    background: rgba(0, 240, 255, 0.1);
+    color: var(--accent-cyan);
+    border: 1px solid var(--border-technical);
+    padding: 0.25rem 0.5rem;
+    border-radius: var(--radius-sm);
+}
+
+.section-status-tag.priority-tag {
+    background: rgba(255, 42, 68, 0.1);
+    color: var(--accent-red);
+    border-color: rgba(255, 42, 68, 0.3);
+}
+
+.section-status-tag.code-c1 {
+    background: rgba(0, 230, 118, 0.1);
+    color: var(--accent-green);
+    border-color: rgba(0, 230, 118, 0.3);
+}
+
+.section-status-tag.code-c2 {
+    background: rgba(255, 179, 0, 0.1);
+    color: var(--accent-amber);
+    border-color: rgba(255, 179, 0, 0.3);
+}
+
+/* --------------------------------------------------------------------------
+   07. SECTION 2: COMMAND OVERVIEW DASHBOARD
+   PSEUDO-CLASSES: :nth-child()
+   -------------------------------------------------------------------------- */
+.dashboard-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(13.5rem, 1fr));
+    gap: 1rem;
+}
+
+/* 4. SMOOTH HOVER TRANSITIONS FOR DASHBOARD CARDS */
+.stat-card {
+    background: var(--bg-card);
+    border: 1px solid var(--border-subtle);
+    border-radius: var(--radius-sm);
+    padding: 1.15rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0.65rem;
+    transition: transform 0.24s cubic-bezier(0.16, 1, 0.3, 1), 
+                border-color 0.24s cubic-bezier(0.16, 1, 0.3, 1),
+                box-shadow 0.24s cubic-bezier(0.16, 1, 0.3, 1),
+                background-color 0.24s ease;
+    position: relative;
+    overflow: hidden;
+}
+
+/* Subtle corner technical border accent via ::before */
+.stat-card::before {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 25px;
+    height: 3px;
+    background: var(--accent-cyan);
+    transition: width 0.28s cubic-bezier(0.16, 1, 0.3, 1), background-color 0.28s ease;
+}
+
+.stat-card:hover {
+    border-color: var(--accent-cyan);
+    transform: translateY(-4px);
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.5), 0 0 15px rgba(0, 240, 255, 0.2);
+}
+
+.stat-card:hover::before {
+    width: 55px;
+}
+
+/* 2. PULSATING EMERGENCY INDICATORS FOR CRITICAL INCIDENTS */
+@keyframes criticalAmbientPulse {
+    0%, 100% {
+        border-color: rgba(255, 42, 68, 0.4);
+        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.4), 0 0 10px rgba(255, 42, 68, 0.15);
+    }
+    50% {
+        border-color: rgba(255, 42, 68, 0.9);
+        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.4), 0 0 25px rgba(255, 42, 68, 0.38);
+    }
+}
+
+.metric-critical {
+    animation: criticalAmbientPulse 2.6s ease-in-out infinite;
+}
+
+.metric-critical:hover {
+    border-color: var(--accent-red);
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.5), 0 0 25px var(--accent-red-glow);
+}
+
+.metric-critical::before {
+    background: var(--accent-red);
+}
+
+.stat-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: 0.5rem;
+}
+
+.stat-caption {
+    font-family: var(--font-mono);
+    font-size: 0.72rem;
+    color: var(--text-secondary);
+    letter-spacing: 0.5px;
+}
+
+.stat-tag {
+    font-family: var(--font-mono);
+    font-size: 0.62rem;
+    padding: 0.15rem 0.35rem;
+    border-radius: var(--radius-sm);
+    white-space: nowrap;
+}
+
+.tag-neutral { background: rgba(255, 255, 255, 0.08); color: var(--text-secondary); }
+.tag-critical { background: var(--accent-red-glow); color: var(--accent-red); border: 1px solid var(--accent-red); }
+.tag-available { background: var(--accent-green-glow); color: var(--accent-green); border: 1px solid var(--accent-green); }
+.tag-warning { background: var(--accent-amber-glow); color: var(--accent-amber); border: 1px solid var(--accent-amber); }
+.tag-success { background: rgba(0, 240, 255, 0.15); color: var(--accent-cyan); border: 1px solid var(--accent-cyan); }
+
+.stat-body {
+    display: flex;
+    align-items: baseline;
+    gap: 0.4rem;
+}
+
+.stat-value {
+    font-size: 2.25rem;
+    font-family: var(--font-mono);
+    font-weight: 900;
+    line-height: 1;
+    color: var(--text-contrast);
+}
+
+.stat-unit {
+    font-size: 0.75rem;
+    font-family: var(--font-mono);
+    color: var(--text-muted);
+}
+
+.stat-footer {
+    display: flex;
+    flex-direction: column;
+    gap: 0.15rem;
+    border-top: 1px solid var(--border-subtle);
+    padding-top: 0.5rem;
+}
+
+.stat-trend {
+    font-family: var(--font-mono);
+    font-size: 0.72rem;
+    font-weight: 700;
+}
+
+.trend-up { color: var(--accent-cyan); }
+.trend-critical { color: var(--accent-red); }
+.trend-positive { color: var(--accent-green); }
+.trend-warning { color: var(--accent-amber); }
+
+.stat-subtext {
+    font-size: 0.7rem;
+    color: var(--text-muted);
+}
+
+/* --------------------------------------------------------------------------
+   08. SECTION 3: EMERGENCY INCIDENT INTELLIGENCE
+   PARENT LEVEL TRANSFORMATIONS VIA CSS :has() & :checked
+   PSEUDO-CLASSES: :has(), :checked, :focus-within, :focus-visible
+   PSEUDO-ELEMENTS: ::before, ::after, ::marker
+   -------------------------------------------------------------------------- */
+.incident-card {
+    background: var(--bg-card);
+    border: 2px solid var(--border-technical);
+    border-radius: var(--radius-md);
+    padding: 1.25rem;
+    display: flex;
+    flex-direction: column;
+    gap: 1.25rem;
+    transition: all 0.25s ease-in-out;
+    position: relative;
+}
+
+/* TRIAGE PRIORITY CONTROLS */
+.priority-selector-bar {
+    background: var(--bg-primary);
+    border: 1px solid var(--border-subtle);
+    padding: 0.75rem 1rem;
+    border-radius: var(--radius-sm);
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.75rem;
+}
+
+.selector-label {
+    font-family: var(--font-mono);
+    font-size: 0.75rem;
+    color: var(--text-secondary);
+    font-weight: 700;
+}
+
+.priority-radios {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+}
+
+.prio-radio-input {
+    position: absolute;
+    opacity: 0;
+    pointer-events: none;
+}
+
+.prio-label {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+    padding: 0.45rem 0.85rem;
+    border: 1px solid var(--border-subtle);
+    background: var(--bg-card);
+    border-radius: var(--radius-sm);
+    cursor: pointer;
+    font-family: var(--font-mono);
+    font-size: 0.75rem;
+    color: var(--text-secondary);
+    transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+    user-select: none;
+}
+
+.prio-label:hover {
+    border-color: var(--accent-cyan);
+    transform: translateY(-1.5px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+}
+
+.prio-label:active {
+    transform: translateY(1.5px) scale(0.97);
+}
+
+.prio-code {
+    font-weight: 900;
+}
+
+.prio-radio-input:focus-visible + .prio-label {
+    outline: 2px solid var(--accent-cyan);
+    outline-offset: 2px;
+}
+
+/* ==========================================================================
+   MANDATORY :has() IMPLEMENTATIONS: PARENT MODIFICATION BASED ON RADIO STATE
+   ========================================================================== */
+
+/* State 1: Critical (Alpha) Selected */
+.incident-card:has(#prio-critical:checked) {
+    border-color: var(--accent-red);
+    box-shadow: 0 0 25px var(--accent-red-glow), inset 0 0 15px rgba(255, 42, 68, 0.08);
+    animation: criticalAmbientPulse 2.4s ease-in-out infinite;
+}
+.incident-card:has(#prio-critical:checked) .state-badge-adaptive {
+    background: var(--accent-red);
+    color: #ffffff;
+    box-shadow: 0 0 10px var(--accent-red-glow);
+}
+.incident-card:has(#prio-critical:checked) .prio-label-critical {
+    background: var(--accent-red);
+    color: #ffffff;
+    border-color: var(--accent-red);
+}
+.incident-card:has(#prio-critical:checked) .state-badge-adaptive::before {
+    content: "▲ CRITICAL ALPHA: ";
+    font-weight: 900;
+}
+
+/* State 2: High (Bravo) Selected */
+.incident-card:has(#prio-high:checked) {
+    border-color: var(--accent-amber);
+    box-shadow: 0 0 25px var(--accent-amber-glow), inset 0 0 15px rgba(255, 179, 0, 0.08);
+}
+.incident-card:has(#prio-high:checked) .state-badge-adaptive {
+    background: var(--accent-amber);
+    color: #000000;
+    box-shadow: 0 0 10px var(--accent-amber-glow);
+}
+.incident-card:has(#prio-high:checked) .prio-label-high {
+    background: var(--accent-amber);
+    color: #000000;
+    border-color: var(--accent-amber);
+    font-weight: 800;
+}
+.incident-card:has(#prio-high:checked) .state-badge-adaptive::before {
+    content: "◆ HIGH BRAVO: ";
+    font-weight: 900;
+}
+
+/* State 3: Moderate (Charlie) Selected */
+.incident-card:has(#prio-moderate:checked) {
+    border-color: var(--accent-cyan);
+    box-shadow: 0 0 25px var(--accent-cyan-glow), inset 0 0 15px rgba(0, 240, 255, 0.08);
+}
+.incident-card:has(#prio-moderate:checked) .state-badge-adaptive {
+    background: var(--accent-cyan);
+    color: #000000;
+}
+.incident-card:has(#prio-moderate:checked) .prio-label-moderate {
+    background: var(--accent-cyan);
+    color: #000000;
+    border-color: var(--accent-cyan);
+    font-weight: 800;
+}
+.incident-card:has(#prio-moderate:checked) .state-badge-adaptive::before {
+    content: "● MODERATE CHARLIE: ";
+    font-weight: 900;
+}
+
+/* State 4: Standby (Delta) Selected */
+.incident-card:has(#prio-standby:checked) {
+    border-color: var(--text-muted);
+    box-shadow: none;
+}
+.incident-card:has(#prio-standby:checked) .state-badge-adaptive {
+    background: var(--bg-surface-elevated);
+    color: var(--text-secondary);
+}
+.incident-card:has(#prio-standby:checked) .prio-label-standby {
+    background: var(--text-secondary);
+    color: #000000;
+    border-color: var(--text-secondary);
+    font-weight: 800;
+}
+.incident-card:has(#prio-standby:checked) .state-badge-adaptive::before {
+    content: "○ STANDBY DELTA: ";
+    font-weight: 900;
+}
+
+/* Incident card internal layout */
+.incident-card-content {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 1.5rem;
+}
+
+@media (width >= 48rem) {
+    .incident-card-content {
+        grid-template-columns: 1.3fr 1fr;
+    }
+}
+
+.incident-data-panel {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+}
+
+.incident-header-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+    border-bottom: 1px solid var(--border-subtle);
+    padding-bottom: 0.75rem;
+}
+
+.incident-badge-group {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    flex-wrap: wrap;
+}
+
+.incident-id-badge {
+    font-family: var(--font-mono);
+    font-size: 0.85rem;
+    color: var(--accent-cyan);
+    background: rgba(0, 240, 255, 0.1);
+    padding: 0.25rem 0.5rem;
+    border-radius: var(--radius-sm);
+    border: 1px solid var(--border-technical);
+}
+
+.state-badge-adaptive {
+    font-family: var(--font-mono);
+    font-size: 0.75rem;
+    font-weight: 800;
+    padding: 0.25rem 0.6rem;
+    border-radius: var(--radius-sm);
+    transition: all var(--transition-snappy);
+}
+
+.time-elapsed-badge {
+    font-family: var(--font-mono);
+    font-size: 0.75rem;
+    color: var(--accent-amber);
+}
+
+.incident-name-display {
+    font-size: 1.35rem;
+    font-weight: 800;
+    color: var(--text-contrast);
+    margin-top: 0.2rem;
+}
+
+.detail-group .detail-label {
+    font-family: var(--font-mono);
+    font-size: 0.7rem;
+    color: var(--text-muted);
+    letter-spacing: 1px;
+}
+
+.detail-row {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(13rem, 1fr));
+    gap: 1rem;
+    background: var(--bg-primary);
+    padding: 1rem;
+    border-radius: var(--radius-sm);
+    border: 1px solid var(--border-subtle);
+}
+
+.incident-location-address {
+    font-style: normal;
+    color: var(--text-primary);
+    margin-top: 0.25rem;
+    font-size: 0.9rem;
+}
+
+.geo-coords {
+    display: inline-block;
+    margin-top: 0.35rem;
+    font-family: var(--font-mono);
+    font-size: 0.75rem;
+    color: var(--accent-cyan);
+    background: rgba(0, 240, 255, 0.08);
+    padding: 0.15rem 0.35rem;
+    border-radius: var(--radius-sm);
+}
+
+.patient-stat {
+    font-size: 0.9rem;
+    color: var(--text-primary);
+    margin-top: 0.25rem;
+}
+
+.patient-notes {
+    font-size: 0.8rem;
+    color: var(--text-secondary);
+    margin-top: 0.35rem;
+    line-height: 1.4;
+}
+
+/* Equipment Requirements List with ::marker */
+.equipment-requirements-panel {
+    background: var(--bg-card-alt);
+    border: 1px solid var(--border-subtle);
+    border-radius: var(--radius-sm);
+    padding: 1rem;
+}
+
+.equipment-heading {
+    font-family: var(--font-mono);
+    font-size: 0.75rem;
+    color: var(--accent-cyan);
+    letter-spacing: 0.5px;
+    margin-bottom: 0.65rem;
+}
+
+.equipment-list {
+    list-style: square;
+    padding-left: 1.25rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+}
+
+/* PSEUDO-ELEMENT: ::marker */
+.equipment-list li::marker {
+    color: var(--accent-red);
+    font-size: 1.1em;
+}
+
+.equipment-item {
+    display: flex;
+    flex-direction: column;
+}
+
+.eq-name {
+    font-weight: 700;
+    color: var(--text-contrast);
+    font-size: 0.85rem;
+}
+
+.eq-spec {
+    font-size: 0.75rem;
+    color: var(--text-secondary);
+}
+
+/* 9. CSS-ONLY EXPANDABLE INCIDENT DETAILS */
+.incident-expandable-drawer {
+    border: 1px solid var(--border-subtle);
+    border-radius: var(--radius-sm);
+    background: var(--bg-card-alt);
+    margin-top: 0.85rem;
+    overflow: hidden;
+    transition: border-color 0.25s ease, box-shadow 0.25s ease;
+}
+
+.incident-expandable-drawer[open] {
+    border-color: var(--accent-cyan);
+    box-shadow: 0 4px 15px rgba(0, 240, 255, 0.12);
+}
+
+.incident-drawer-summary {
+    padding: 0.75rem 1rem;
+    font-family: var(--font-mono);
+    font-size: 0.75rem;
+    font-weight: 700;
+    color: var(--text-contrast);
+    background: var(--bg-primary);
+    cursor: pointer;
+    user-select: none;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.5rem;
+    list-style: none;
+    transition: background-color 0.2s ease, color 0.2s ease;
+}
+
+.incident-drawer-summary::-webkit-details-marker {
+    display: none;
+}
+
+.incident-drawer-summary:hover {
+    background: var(--bg-card);
+    color: var(--accent-cyan);
+}
+
+.drawer-caret {
+    display: inline-block;
+    transition: transform 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+    color: var(--accent-cyan);
+    font-size: 0.8em;
+}
+
+.incident-expandable-drawer[open] .drawer-caret {
+    transform: rotate(90deg);
+}
+
+.drawer-pill {
+    background: rgba(0, 240, 255, 0.1);
+    color: var(--accent-cyan);
+    border: 1px solid var(--border-technical);
+    padding: 0.15rem 0.45rem;
+    border-radius: var(--radius-sm);
+    font-size: 0.65rem;
+}
+
+.incident-drawer-body {
+    padding: 1rem;
+    background: var(--bg-card-alt);
+    border-top: 1px dashed var(--border-subtle);
+    display: flex;
+    flex-direction: column;
+    gap: 0.85rem;
+    animation: drawerFadeSlide 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+@keyframes drawerFadeSlide {
+    from {
+        opacity: 0;
+        transform: translateY(-8px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.vitals-matrix-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(8.5rem, 1fr));
+    gap: 0.65rem;
+}
+
+.vital-card {
+    background: var(--bg-primary);
+    border: 1px solid var(--border-subtle);
+    border-radius: var(--radius-sm);
+    padding: 0.65rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0.2rem;
+    transition: border-color 0.2s ease, transform 0.2s ease;
+}
+
+.vital-card:hover {
+    border-color: var(--accent-cyan);
+    transform: translateY(-2px);
+}
+
+.vc-label {
+    font-family: var(--font-mono);
+    font-size: 0.62rem;
+    color: var(--text-muted);
+}
+
+.vc-value {
+    font-family: var(--font-mono);
+    font-size: 1.15rem;
+    font-weight: 900;
+}
+
+.vc-value small {
+    font-size: 0.6em;
+    font-weight: normal;
+}
+
+.vc-sub {
+    font-size: 0.68rem;
+    color: var(--text-secondary);
+}
+
+/* 8. ANIMATED ECG RHYTHM STREAM */
+.ecg-rhythm-widget {
+    background: #06090e;
+    border: 1px solid rgba(0, 240, 255, 0.3);
+    border-radius: var(--radius-sm);
+    padding: 0.75rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+}
+
+.ecg-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-family: var(--font-mono);
+    font-size: 0.7rem;
+}
+
+.ecg-lead-tag {
+    color: var(--accent-cyan);
+    font-weight: 700;
+}
+
+.heartbeat-pulse-badge {
+    background: rgba(255, 42, 68, 0.15);
+    color: var(--accent-red);
+    border: 1px solid var(--accent-red);
+    padding: 0.15rem 0.45rem;
+    border-radius: var(--radius-sm);
+    font-weight: 800;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.35rem;
+}
+
+.heartbeat-icon {
+    display: inline-block;
+    animation: heartbeat 1.2s infinite ease-in-out;
+}
+
+@keyframes heartbeat {
+    0%, 100% { transform: scale(1); }
+    14% { transform: scale(1.3); }
+    28% { transform: scale(1); }
+    42% { transform: scale(1.18); }
+    70% { transform: scale(1); }
+}
+
+.ecg-monitor-screen {
+    position: relative;
+    height: 60px;
+    background: #04070a;
+    border: 1px solid var(--border-subtle);
+    border-radius: var(--radius-sm);
+    overflow: hidden;
+}
+
+.ecg-grid-mesh {
+    position: absolute;
+    inset: 0;
+    background-image: 
+        linear-gradient(to right, rgba(0, 240, 255, 0.06) 1px, transparent 1px),
+        linear-gradient(to bottom, rgba(0, 240, 255, 0.06) 1px, transparent 1px);
+    background-size: 15px 15px;
+}
+
+.ecg-trace-svg {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+}
+
+.ecg-line-path {
+    stroke-dasharray: 600;
+    stroke-dashoffset: 600;
+    animation: ecgTraceSweep 2.8s linear infinite;
+}
+
+@keyframes ecgTraceSweep {
+    0% { stroke-dashoffset: 600; }
+    90% { stroke-dashoffset: 0; }
+    100% { stroke-dashoffset: 0; opacity: 0.4; }
+}
+
+.ecg-sweep-bar {
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    width: 15px;
+    background: linear-gradient(to right, transparent, rgba(0, 240, 255, 0.4));
+    animation: ecgScanner 2.8s linear infinite;
+}
+
+@keyframes ecgScanner {
+    from { left: -15px; }
+    to { left: 100%; }
+}
+
+/* Incident Visual Panel & HTML5 <picture> */
+.incident-visual-panel {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+}
+
+.incident-art-figure {
+    background: var(--bg-primary);
+    border: 1px solid var(--border-technical);
+    border-radius: var(--radius-sm);
+    padding: 0.5rem;
+    overflow: hidden;
+}
+
+.incident-art-picture {
+    display: block;
+    width: 100%;
+}
+
+.ambulance-art {
+    width: 100%;
+    height: auto;
+    display: block;
+    border-radius: var(--radius-sm);
+    border: 1px solid var(--border-subtle);
+}
+
+.incident-art-caption {
+    font-family: var(--font-mono);
+    font-size: 0.72rem;
+    color: var(--text-secondary);
+    padding-top: 0.5rem;
+    line-height: 1.4;
+}
+
+.caption-marker {
+    color: var(--accent-cyan);
+    font-weight: 900;
+    margin-right: 0.35rem;
+}
+
+.incident-quick-actions {
+    background: var(--bg-primary);
+    border-left: 3px solid var(--accent-green);
+    padding: 0.75rem;
+    border-radius: 0 var(--radius-sm) var(--radius-sm) 0;
+}
+
+.action-heading {
+    font-family: var(--font-mono);
+    font-size: 0.68rem;
+    color: var(--accent-green);
+    letter-spacing: 1px;
+    font-weight: 700;
+    display: block;
+}
+
+.vector-desc {
+    font-family: var(--font-mono);
+    font-size: 0.78rem;
+    color: var(--text-contrast);
+    margin-top: 0.2rem;
+}
+
+/* ==========================================================================
+   PSEUDO-CLASSES: :placeholder-shown, :focus-within, :user-invalid, :valid
+   ========================================================================== */
+.incident-form-search-block {
+    background: var(--bg-primary);
+    border: 1px solid var(--border-subtle);
+    padding: 1rem;
+    border-radius: var(--radius-sm);
+    transition: border-color var(--transition-snappy);
+}
+
+/* PSEUDO-CLASS: :focus-within on fieldset / container */
+.incident-form-search-block:focus-within {
+    border-color: var(--accent-cyan);
+    box-shadow: 0 0 15px rgba(0, 240, 255, 0.15);
+}
+
+.form-fieldset {
+    border: none;
+    display: flex;
+    flex-direction: column;
+    gap: 0.85rem;
+}
+
+.form-legend {
+    font-family: var(--font-mono);
+    font-size: 0.72rem;
+    color: var(--accent-cyan);
+    letter-spacing: 1px;
+    font-weight: 700;
+    margin-bottom: 0.5rem;
+}
+
+.form-row {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 1rem;
+}
+
+.flex-1 { flex: 1; min-width: 15rem; }
+.flex-2 { flex: 2; min-width: 18rem; }
+
+.form-group {
+    display: flex;
+    flex-direction: column;
+    gap: 0.35rem;
+}
+
+.form-label {
+    font-family: var(--font-mono);
+    font-size: 0.72rem;
+    color: var(--text-secondary);
+    font-weight: 700;
+}
+
+.req-star {
+    color: var(--accent-red);
+    font-weight: 900;
+}
+
+.console-input {
+    background: var(--bg-card);
+    border: 1px solid var(--border-subtle);
+    color: var(--text-primary);
+    padding: 0.65rem 0.85rem;
+    font-family: var(--font-mono);
+    font-size: 0.85rem;
+    border-radius: var(--radius-sm);
+    transition: all var(--transition-snappy);
+}
+
+.console-input:focus {
+    outline: none;
+    border-color: var(--accent-cyan);
+    background: var(--bg-card-alt);
+    box-shadow: 0 0 10px rgba(0, 240, 255, 0.2);
+}
+
+/* PSEUDO-CLASS: :placeholder-shown */
+.console-input:placeholder-shown {
+    border-style: dashed;
+    border-color: rgba(255, 255, 255, 0.15);
+}
+
+/* PSEUDO-CLASS: :user-invalid */
+.console-input:user-invalid {
+    border-color: var(--accent-red);
+    background-color: rgba(255, 42, 68, 0.05);
+}
+
+.console-input:user-invalid + .field-feedback {
+    display: block;
+    color: var(--accent-red);
+}
+
+/* PSEUDO-CLASS: :valid */
+.console-input:valid:not(:placeholder-shown) {
+    border-color: var(--accent-green);
+    background-color: rgba(0, 230, 118, 0.05);
+}
+
+.field-feedback {
+    display: none;
+    font-family: var(--font-mono);
+    font-size: 0.68rem;
+    margin-top: 0.2rem;
+}
+
+/* --------------------------------------------------------------------------
+   09. SECTION 4: CSS-ONLY EMERGENCY DISPATCH WIZARD (CHALLENGE C1)
+   100% PURE CSS STATEFUL FLOW USING :checked, :has(), AND SIBLING RULES
+   ========================================================================== */
+.wizard-explainer {
+    font-size: 0.85rem;
+    color: var(--text-secondary);
+    margin-bottom: 1.5rem;
+    line-height: 1.5;
+    background: var(--bg-card);
+    padding: 0.75rem 1rem;
+    border-left: 3px solid var(--accent-cyan);
+    border-radius: 0 var(--radius-sm) var(--radius-sm) 0;
+}
+
+.wizard-container {
+    display: flex;
+    flex-direction: column;
+    gap: 1.75rem;
+}
+
+.wizard-stage {
+    border: 1px solid var(--border-subtle);
+    border-radius: var(--radius-md);
+    background: var(--bg-card);
+    padding: 1.25rem;
+    transition: border-color 0.25s ease, box-shadow 0.25s ease, transform 0.25s ease;
+    position: relative;
+}
+
+.wizard-stage:focus-within {
+    border-color: var(--accent-cyan);
+    box-shadow: 0 0 15px rgba(0, 240, 255, 0.15);
+}
+
+.stage-legend {
+    padding: 0 0.5rem;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.stage-num {
+    font-family: var(--font-mono);
+    font-size: 0.7rem;
+    font-weight: 900;
+    background: var(--accent-cyan);
+    color: var(--bg-primary);
+    padding: 0.15rem 0.4rem;
+    border-radius: var(--radius-sm);
+}
+
+.stage-name {
+    font-family: var(--font-mono);
+    font-size: 0.85rem;
+    font-weight: 700;
+    color: var(--text-contrast);
+}
+
+.wizard-options-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(13rem, 1fr));
+    gap: 0.85rem;
+    margin-top: 0.5rem;
+}
+
+.wizard-option-card {
+    display: block;
+    position: relative;
+    cursor: pointer;
+}
+
+.wizard-option-card input[type="radio"] {
+    position: absolute;
+    opacity: 0;
+    pointer-events: none;
+}
+
+.opt-body {
+    display: flex;
+    flex-direction: column;
+    gap: 0.4rem;
+    padding: 1rem;
+    background: var(--bg-primary);
+    border: 1px solid var(--border-subtle);
+    border-radius: var(--radius-sm);
+    height: 100%;
+    transition: transform 0.2s cubic-bezier(0.16, 1, 0.3, 1),
+                border-color 0.2s ease,
+                background-color 0.2s ease,
+                box-shadow 0.2s ease;
+}
+
+.wizard-option-card:hover .opt-body {
+    transform: translateY(-2px);
+    border-color: rgba(0, 240, 255, 0.45);
+}
+
+.wizard-option-card:active .opt-body {
+    transform: scale(0.98);
+}
+
+.opt-indicator {
+    font-size: 1.3rem;
+}
+
+.opt-title {
+    font-size: 0.95rem;
+    font-weight: 700;
+    color: var(--text-contrast);
+}
+
+.opt-desc {
+    font-size: 0.78rem;
+    color: var(--text-secondary);
+    line-height: 1.35;
+    flex-grow: 1;
+}
+
+.opt-protocol, .opt-sla, .opt-resource {
+    font-family: var(--font-mono);
+    font-size: 0.68rem;
+    color: var(--accent-cyan);
+    margin-top: 0.35rem;
+    background: rgba(0, 240, 255, 0.08);
+    padding: 0.2rem 0.4rem;
+    border-radius: var(--radius-sm);
+    display: inline-block;
+}
+
+/* Radio Checked State Transformation */
+.wizard-option-card input[type="radio"]:checked + .opt-body {
+    border-color: var(--accent-cyan);
+    background: var(--bg-card-alt);
+    box-shadow: 0 0 15px rgba(0, 240, 255, 0.2), inset 0 0 8px rgba(0, 240, 255, 0.05);
+}
+
+.wizard-option-card input[type="radio"]:checked + .opt-body .opt-title {
+    color: var(--accent-cyan);
+}
+
+.wizard-option-card input[type="radio"]:focus-visible + .opt-body {
+    outline: 2px solid var(--accent-cyan);
+    outline-offset: 2px;
+}
+
+/* Severity Card Specific Accents */
+.sev-card-critical input[type="radio"]:checked + .opt-body {
+    border-color: var(--accent-red);
+    box-shadow: 0 0 15px var(--accent-red-glow);
+}
+.sev-card-critical input[type="radio"]:checked + .opt-body .opt-title,
+.sev-card-critical input[type="radio"]:checked + .opt-body .opt-sla {
+    color: var(--accent-red);
+}
+
+.sev-card-high input[type="radio"]:checked + .opt-body {
+    border-color: var(--accent-amber);
+    box-shadow: 0 0 15px var(--accent-amber-glow);
+}
+.sev-card-high input[type="radio"]:checked + .opt-body .opt-title,
+.sev-card-high input[type="radio"]:checked + .opt-body .opt-sla {
+    color: var(--accent-amber);
+}
+
+/* --------------------------------------------------------------------------
+   STAGE 4: DYNAMIC TICKET POPULATION BASED ON CHOICES VIA :has()
+   -------------------------------------------------------------------------- */
+.stage-4 {
+    background: var(--bg-secondary);
+    border: 2px solid var(--accent-cyan);
+    padding: 1.5rem;
+}
+
+.ticket-header-strip {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    border-bottom: 1px solid var(--border-technical);
+    padding-bottom: 0.75rem;
+    margin-bottom: 1rem;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+}
+
+.ticket-title {
+    font-size: 1.15rem;
+    font-weight: 800;
+    color: var(--accent-cyan);
+    letter-spacing: 1px;
+}
+
+.ticket-auth-code {
+    font-family: var(--font-mono);
+    font-size: 0.75rem;
+    color: var(--accent-amber);
+}
+
+.dispatch-ticket-card {
+    background: var(--bg-primary);
+    border: 1px dashed var(--border-technical);
+    border-radius: var(--radius-sm);
+    padding: 1.25rem;
+    display: flex;
+    flex-direction: column;
+    gap: 1.25rem;
+}
+
+.ticket-top-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+    border-bottom: 1px solid var(--border-subtle);
+    padding-bottom: 0.75rem;
+}
+
+.ticket-brand {
+    display: flex;
+    flex-direction: column;
+}
+
+.ticket-logo {
+    font-family: var(--font-mono);
+    font-size: 0.85rem;
+    font-weight: 800;
+    color: var(--text-contrast);
+}
+
+.ticket-timestamp {
+    font-family: var(--font-mono);
+    font-size: 0.72rem;
+    color: var(--text-muted);
+}
+
+.ticket-barcode {
+    font-family: var(--font-mono);
+    letter-spacing: 3px;
+    color: var(--accent-cyan);
+    font-size: 1.1rem;
+}
+
+.ticket-fields-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(14rem, 1fr));
+    gap: 1rem;
+}
+
+.ticket-field {
+    background: var(--bg-card);
+    padding: 0.85rem;
+    border-radius: var(--radius-sm);
+    border: 1px solid var(--border-subtle);
+}
+
+.tf-label {
+    font-family: var(--font-mono);
+    font-size: 0.68rem;
+    color: var(--text-muted);
+    letter-spacing: 0.5px;
+    display: block;
+    margin-bottom: 0.35rem;
+}
+
+.tf-value-highlight {
+    font-family: var(--font-mono);
+    font-size: 0.85rem;
+    font-weight: 700;
+    color: var(--accent-green);
+}
+
+/* ==========================================================================
+   PURE CSS DYNAMIC REVEAL RULES BASED ON :has() & :checked
+   10. SMOOTH TRANSITIONS BETWEEN CSS-ONLY DISPATCH WIZARD STAGES
+   ========================================================================== */
+.tf-value-dynamic, .tg-body {
+    display: none; /* Hidden by default; unhidden by parent :has() */
+    font-family: var(--font-mono);
+    font-size: 0.85rem;
+    font-weight: 700;
+    animation: ticketFieldSlide 0.35s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+@keyframes ticketFieldSlide {
+    from {
+        opacity: 0;
+        transform: translateY(6px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* Stage 1 Emergency Type Reveals */
+.wizard-container:has(#wiz-type-cardiac:checked) .dyn-type-cardiac { display: block; color: var(--accent-red); }
+.wizard-container:has(#wiz-type-trauma:checked) .dyn-type-trauma { display: block; color: var(--accent-amber); }
+.wizard-container:has(#wiz-type-stroke:checked) .dyn-type-stroke { display: block; color: var(--accent-cyan); }
+.wizard-container:has(#wiz-type-respiratory:checked) .dyn-type-respiratory { display: block; color: #a78bfa; }
+.wizard-container:has(#wiz-type-general:checked) .dyn-type-general { display: block; color: var(--text-contrast); }
+
+/* Stage 2 Severity Reveals */
+.wizard-container:has(#wiz-sev-critical:checked) .dyn-sev-critical { display: block; color: var(--accent-red); }
+.wizard-container:has(#wiz-sev-high:checked) .dyn-sev-high { display: block; color: var(--accent-amber); }
+.wizard-container:has(#wiz-sev-moderate:checked) .dyn-sev-moderate { display: block; color: var(--accent-green); }
+
+/* Stage 3 Ambulance Tier Reveals */
+.wizard-container:has(#wiz-tier-bls:checked) .dyn-tier-bls { display: block; color: var(--text-secondary); }
+.wizard-container:has(#wiz-tier-als:checked) .dyn-tier-als { display: block; color: var(--accent-cyan); }
+.wizard-container:has(#wiz-tier-nicu:checked) .dyn-tier-nicu { display: block; color: #f472b6; }
+
+/* Dynamic Clinical Protocol Guidance (Stage 1 to Stage 4 Advice Connection) */
+.ticket-protocol-guidance {
+    background: var(--bg-card);
+    border-left: 3px solid var(--accent-cyan);
+    padding: 0.85rem 1rem;
+    border-radius: 0 var(--radius-sm) var(--radius-sm) 0;
+}
+
+.tg-label {
+    font-family: var(--font-mono);
+    font-size: 0.7rem;
+    color: var(--accent-cyan);
+    display: block;
+    margin-bottom: 0.35rem;
+    font-weight: 700;
+}
+
+.wizard-container:has(#wiz-type-cardiac:checked) .dyn-advice-cardiac { display: block; }
+.wizard-container:has(#wiz-type-trauma:checked) .dyn-advice-trauma { display: block; }
+.wizard-container:has(#wiz-type-stroke:checked) .dyn-advice-stroke { display: block; }
+.wizard-container:has(#wiz-type-respiratory:checked) .dyn-advice-respiratory { display: block; }
+.wizard-container:has(#wiz-type-general:checked) .dyn-advice-general { display: block; }
+
+.ticket-footer-strip {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-top: 1px solid var(--border-subtle);
+    padding-top: 0.75rem;
+    font-family: var(--font-mono);
+    font-size: 0.72rem;
+    color: var(--text-muted);
+}
+
+.tf-seal {
+    color: var(--accent-green);
+    font-weight: 700;
+}
+
+/* --------------------------------------------------------------------------
+   10. SECTION 5: AMBULANCE FLEET MONITOR
+   PSEUDO-CLASSES: :not(), :checked, :has(), :hover, :focus-within
+   -------------------------------------------------------------------------- */
+.fleet-filter-bar {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 0.5rem;
+    margin-bottom: 1.25rem;
+    background: var(--bg-card);
+    padding: 0.75rem 1rem;
+    border-radius: var(--radius-sm);
+    border: 1px solid var(--border-subtle);
+}
+
+.filter-caption {
+    font-family: var(--font-mono);
+    font-size: 0.75rem;
+    color: var(--text-secondary);
+    font-weight: 700;
+}
+
+.filter-radio {
+    position: absolute;
+    opacity: 0;
+    pointer-events: none;
+}
+
+.filter-chip {
+    padding: 0.45rem 0.85rem;
+    border: 1px solid var(--border-subtle);
+    background: var(--bg-primary);
+    border-radius: var(--radius-sm);
+    font-family: var(--font-mono);
+    font-size: 0.72rem;
+    color: var(--text-secondary);
+    cursor: pointer;
+    transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+    user-select: none;
+}
+
+.filter-chip:hover {
+    border-color: var(--accent-cyan);
+    color: var(--text-contrast);
+    transform: translateY(-1.5px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+}
+
+.filter-chip:active {
+    transform: translateY(1.5px) scale(0.97);
+}
+
+.filter-radio:checked + .filter-chip {
+    background: var(--accent-cyan);
+    color: var(--bg-primary);
+    border-color: var(--accent-cyan);
+    font-weight: 800;
+}
+
+.filter-radio:focus-visible + .filter-chip {
+    outline: 2px solid var(--accent-cyan);
+    outline-offset: 2px;
+}
+
+/* ==========================================================================
+   FLEET FILTERING USING :has() & :not()
+   ========================================================================== */
+.fleet-section:has(#flt-avail:checked) .fleet-cards-grid .ambulance-card:not(.status-avail) {
+    display: none;
+}
+
+.fleet-section:has(#flt-disp:checked) .fleet-cards-grid .ambulance-card:not(.status-disp) {
+    display: none;
+}
+
+.fleet-section:has(#flt-maint:checked) .fleet-cards-grid .ambulance-card:not(.status-maint) {
+    display: none;
+}
+
+.fleet-cards-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(16rem, 1fr));
+    gap: 1.25rem;
+}
+
+.ambulance-card {
+    background: var(--bg-card);
+    border: 1px solid var(--border-subtle);
+    border-radius: var(--radius-sm);
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    transition: all var(--transition-snappy);
+    position: relative;
+}
+
+.ambulance-card:hover {
+    border-color: var(--accent-cyan);
+    transform: translateY(-3px);
+    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.5);
+}
+
+.ambulance-card.card-recommended {
+    border-color: var(--accent-green);
+    box-shadow: 0 0 15px var(--accent-green-glow);
+}
+
+.recommended-flag {
+    font-family: var(--font-mono);
+    font-size: 0.68rem;
+    color: var(--accent-green);
+    font-weight: 800;
+    margin-bottom: 0.35rem;
+}
+
+.card-status-strip {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background: var(--bg-primary);
+    padding: 0.65rem 1rem;
+    border-bottom: 1px solid var(--border-subtle);
+}
+
+.unit-code {
+    font-family: var(--font-mono);
+    font-size: 1.1rem;
+    font-weight: 900;
+    color: var(--text-contrast);
+}
+
+.status-pill {
+    font-family: var(--font-mono);
+    font-size: 0.68rem;
+    font-weight: 800;
+    padding: 0.2rem 0.5rem;
+    border-radius: var(--radius-sm);
+}
+
+.pill-avail { background: var(--accent-green-glow); color: var(--accent-green); border: 1px solid var(--accent-green); }
+.pill-disp { background: var(--accent-amber-glow); color: var(--accent-amber); border: 1px solid var(--accent-amber); }
+.pill-maint { background: rgba(255, 42, 68, 0.15); color: var(--accent-red); border: 1px solid var(--accent-red); }
+.pill-standby { background: rgba(0, 240, 255, 0.15); color: var(--accent-cyan); border: 1px solid var(--accent-cyan); }
+
+.ambulance-card .card-body {
+    padding: 1rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0.65rem;
+    flex-grow: 1;
+}
+
+.unit-title {
+    font-size: 1rem;
+    font-weight: 700;
+    color: var(--text-contrast);
+}
+
+.unit-crew {
+    font-size: 0.8rem;
+    color: var(--text-secondary);
+}
+
+.unit-equipment-bullets {
+    list-style: square;
+    padding-left: 1.15rem;
+    font-size: 0.78rem;
+    color: var(--text-secondary);
+    display: flex;
+    flex-direction: column;
+    gap: 0.2rem;
+}
+
+.unit-equipment-bullets li::marker {
+    color: var(--accent-cyan);
+}
+
+.unit-meta-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 0.4rem;
+    background: var(--bg-primary);
+    padding: 0.65rem;
+    border-radius: var(--radius-sm);
+    font-size: 0.72rem;
+    color: var(--text-secondary);
+    font-family: var(--font-mono);
+    margin-top: 0.35rem;
+}
+
+/* Native Accessible Details Drawer */
+.card-telemetry-drawer {
+    border-top: 1px solid var(--border-subtle);
+    background: var(--bg-card-alt);
+}
+
+.drawer-trigger {
+    padding: 0.5rem 1rem;
+    font-family: var(--font-mono);
+    font-size: 0.7rem;
+    font-weight: 700;
+    color: var(--accent-cyan);
+    cursor: pointer;
+    list-style: none;
+    user-select: none;
+}
+
+.drawer-trigger::-webkit-details-marker {
+    display: none;
+}
+
+.drawer-trigger::before {
+    content: "▶ ";
+    font-size: 0.75em;
+    display: inline-block;
+    transition: transform var(--transition-snappy);
+}
+
+.card-telemetry-drawer[open] .drawer-trigger::before {
+    transform: rotate(90deg);
+}
+
+.drawer-content {
+    padding: 0.65rem 1rem 0.85rem;
+    font-family: var(--font-mono);
+    font-size: 0.72rem;
+    color: var(--text-secondary);
+    display: flex;
+    flex-direction: column;
+    gap: 0.3rem;
+    background: var(--bg-primary);
+    border-top: 1px dashed var(--border-subtle);
+}
+
+/* --------------------------------------------------------------------------
+   11. SECTION 6: EMERGENCY ROUTE INTELLIGENCE
+   DESKTOP VS MOBILE ROUTE ART DIRECTION
+   ========================================================================== */
+.route-display-container {
+    display: flex;
+    flex-direction: column;
+    gap: 1.25rem;
+}
+
+/* Desktop detailed view (Visible on desktop/tablet) */
+.route-desktop-view {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+}
+
+.route-map-wrapper {
+    background: #080c12;
+    border: 1px solid var(--border-technical);
+    border-radius: var(--radius-sm);
+    overflow: hidden;
+    box-shadow: inset 0 0 20px rgba(0, 0, 0, 0.8);
+}
+
+.route-svg-object, .route-fallback-img, .route-svg-inline {
+    width: 100%;
+    height: auto;
+    display: block;
+}
+
+/* 1. Animated Route Progression */
+.route-flow-line {
+    stroke-dasharray: 14 10;
+    animation: routeFlow 2s linear infinite;
+}
+@keyframes routeFlow {
+    from { stroke-dashoffset: 48; }
+    to { stroke-dashoffset: 0; }
+}
+
+.route-evac-line {
+    stroke-dasharray: 8 6;
+    animation: evacFlow 2.5s linear infinite;
+}
+@keyframes evacFlow {
+    from { stroke-dashoffset: 28; }
+    to { stroke-dashoffset: 0; }
+}
+
+/* 2. Pulsating Incident Radar Beacon */
+.incident-radar-pulse {
+    transform-origin: 500px 220px;
+    animation: radarPing 2.4s cubic-bezier(0.2, 0.8, 0.4, 1) infinite;
+}
+@keyframes radarPing {
+    0% { r: 12px; opacity: 0.9; stroke-width: 2.5px; }
+    50% { opacity: 0.45; }
+    100% { r: 42px; opacity: 0; stroke-width: 0.5px; }
+}
+
+.incident-radar-pulse-2 {
+    transform-origin: 500px 220px;
+    animation: radarPing 2.4s cubic-bezier(0.2, 0.8, 0.4, 1) 1.2s infinite;
+}
+
+/* 3. Radar Sweep Line (Tactical 360 degree scan) */
+.radar-sweep-beam {
+    transform-origin: 500px 280px;
+    animation: radarSweep 8s linear infinite;
+}
+@keyframes radarSweep {
+    from { transform: rotate(0deg); }
+    to { transform: rotate(360deg); }
+}
+
+/* 4. Preempted Traffic Signal Beacons */
+.signal-beacon {
+    animation: signalBlink 2s ease-in-out infinite alternate;
+}
+@keyframes signalBlink {
+    0% { fill: #00e676; filter: drop-shadow(0 0 2px #00e676); }
+    100% { fill: #b9f6ca; filter: drop-shadow(0 0 8px #00e676); }
+}
+
+/* 5. Ambulance Movement Animation Along the Emergency Route */
+.moving-ambulance-group {
+    offset-path: path("M 820,140 L 720,220 L 500,220 L 280,220 L 160,360");
+    offset-rotate: auto;
+    animation: ambulanceTransit 14s cubic-bezier(0.45, 0.05, 0.55, 0.95) infinite;
+}
+@keyframes ambulanceTransit {
+    0% { offset-distance: 0%; }
+    22% { offset-distance: 22%; }
+    42% { offset-distance: 46%; }
+    62% { offset-distance: 46%; }
+    92% { offset-distance: 100%; }
+    100% { offset-distance: 100%; }
+}
+
+/* Emergency Strobe Beacons on Ambulance */
+.amb-strobe-red {
+    animation: strobeRed 0.8s steps(2, start) infinite;
+}
+.amb-strobe-cyan {
+    animation: strobeCyan 0.8s steps(2, start) 0.4s infinite;
+}
+@keyframes strobeRed {
+    0%, 100% { fill: #ff2a44; opacity: 1; }
+    50% { fill: #ff2a44; opacity: 0.2; }
+}
+@keyframes strobeCyan {
+    0%, 100% { fill: #00f0ff; opacity: 1; }
+    50% { fill: #00f0ff; opacity: 0.2; }
+}
+
+.route-telemetry-hud {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(11rem, 1fr));
+    gap: 0.75rem;
+    background: var(--bg-card);
+    padding: 1rem;
+    border-radius: var(--radius-sm);
+    border: 1px solid var(--border-subtle);
+}
+
+.hud-item {
+    display: flex;
+    flex-direction: column;
+    gap: 0.2rem;
+}
+
+.hud-label {
+    font-family: var(--font-mono);
+    font-size: 0.65rem;
+    color: var(--text-muted);
+}
+
+.hud-value {
+    font-family: var(--font-mono);
+    font-size: 0.85rem;
+    font-weight: 700;
+}
+
+.val-cyan { color: var(--accent-cyan); }
+.val-red { color: var(--accent-red); }
+.val-green { color: var(--accent-green); }
+.val-amber { color: var(--accent-amber); }
+
+/* 3. ANIMATED ROUTE PROGRESSION TRACKER (DESKTOP HUD) */
+.route-transit-tracker {
+    background: var(--bg-card);
+    border: 1px solid var(--border-technical);
+    border-radius: var(--radius-sm);
+    padding: 1rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0.85rem;
+    margin-top: 0.75rem;
+}
+
+.tracker-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-family: var(--font-mono);
+    font-size: 0.72rem;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+}
+
+.th-title {
+    font-weight: 700;
+    color: var(--text-contrast);
+}
+
+.th-status {
+    font-weight: 800;
+    letter-spacing: 0.5px;
+}
+
+.tracker-track {
+    position: relative;
+    height: 10px;
+    background: var(--bg-primary);
+    border: 1px solid var(--border-subtle);
+    border-radius: 5px;
+    overflow: visible;
+}
+
+.tracker-fill-bar {
+    position: absolute;
+    top: 0;
+    left: 0;
+    bottom: 0;
+    background: linear-gradient(90deg, var(--accent-cyan), var(--accent-green));
+    border-radius: 5px;
+    animation: transitBarFill 14s cubic-bezier(0.45, 0.05, 0.55, 0.95) infinite;
+}
+
+@keyframes transitBarFill {
+    0% { width: 0%; }
+    22% { width: 22%; }
+    42% { width: 48%; }
+    62% { width: 48%; }
+    92% { width: 100%; }
+    100% { width: 100%; }
+}
+
+.tracker-ambulance-node {
+    position: absolute;
+    top: 50%;
+    transform: translate(-50%, -50%);
+    width: 26px;
+    height: 26px;
+    background: var(--bg-secondary);
+    border: 1.5px solid var(--accent-cyan);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 5;
+    animation: transitAmbulanceNode 14s cubic-bezier(0.45, 0.05, 0.55, 0.95) infinite;
+}
+
+@keyframes transitAmbulanceNode {
+    0% { left: 0%; }
+    22% { left: 22%; }
+    42% { left: 48%; }
+    62% { left: 48%; }
+    92% { left: 100%; }
+    100% { left: 100%; }
+}
+
+.tan-icon {
+    font-size: 0.75rem;
+    line-height: 1;
+}
+
+.tan-ping {
+    position: absolute;
+    inset: -4px;
+    border: 1px solid var(--accent-cyan);
+    border-radius: 50%;
+    animation: beacon-pulse 1.8s infinite;
+}
+
+.tracker-waypoint {
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: var(--bg-card);
+    border: 2px solid var(--border-technical);
+    z-index: 2;
+}
+
+.wp-start { left: 0%; }
+.wp-incident { left: 48%; border-color: var(--accent-red); background: var(--accent-red); }
+.wp-hosp { right: 0%; border-color: var(--accent-green); background: var(--accent-green); }
+
+.tracker-labels {
+    display: flex;
+    justify-content: space-between;
+    font-family: var(--font-mono);
+    font-size: 0.65rem;
+    color: var(--text-muted);
+}
+
+.mid-label {
+    color: var(--accent-red);
+    font-weight: 700;
+}
+
+/* Mobile view: Hidden on desktop by default; revealed on narrow viewports */
+.route-mobile-view {
+    display: none;
+    flex-direction: column;
+    gap: 1rem;
+}
+
+/* --------------------------------------------------------------------------
+   12. SECTION 7: EMERGENCY RADIO COMMUNICATION
+   HTML5 AUDIO & WEBVTT STYLING WITH PSEUDO-ELEMENT ::cue
+   ========================================================================== */
+.audio-console-card {
+    background: var(--bg-card);
+    border: 1px solid var(--border-subtle);
+    border-radius: var(--radius-sm);
+    padding: 1.25rem;
+    display: flex;
+    flex-direction: column;
+    gap: 1.25rem;
+}
+
+.audio-control-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 0.75rem;
+    border-bottom: 1px solid var(--border-subtle);
+    padding-bottom: 0.75rem;
+}
+
+.freq-tag {
+    font-family: var(--font-mono);
+    font-size: 0.7rem;
+    color: var(--accent-cyan);
+    letter-spacing: 1px;
+}
+
+.transmission-title {
+    font-size: 1.05rem;
+    font-weight: 800;
+    color: var(--text-contrast);
+}
+
+.audio-signal-meter {
+    display: flex;
+    align-items: flex-end;
+    gap: 3px;
+    height: 1.25rem;
+}
+
+.meter-bar {
+    width: 4px;
+    background: var(--accent-green);
+    border-radius: 1px;
+    transform-origin: bottom;
+    animation: meterFluctuate 1.4s ease-in-out infinite alternate;
+}
+.b1 { height: 35%; animation-delay: 0.1s; }
+.b2 { height: 60%; animation-delay: 0.35s; }
+.b3 { height: 85%; animation-delay: 0.15s; }
+.b4 { height: 95%; animation-delay: 0.4s; }
+.b5 { height: 75%; animation-delay: 0.25s; }
+
+@keyframes meterFluctuate {
+    0% { transform: scaleY(0.65); opacity: 0.7; }
+    50% { transform: scaleY(1.1); opacity: 1; filter: drop-shadow(0 0 4px var(--accent-green)); }
+    100% { transform: scaleY(0.78); opacity: 0.85; }
+}
+
+.meter-label {
+    font-family: var(--font-mono);
+    font-size: 0.65rem;
+    color: var(--accent-green);
+    margin-left: 0.4rem;
+}
+
+.audio-player-wrapper {
+    background: var(--bg-primary);
+    border: 1px solid var(--border-technical);
+    padding: 1rem;
+    border-radius: var(--radius-sm);
+}
+
+.tactical-audio-player {
+    width: 100%;
+    filter: invert(0.9) hue-rotate(180deg);
+}
+
+.audio-notes-callout {
+    background: rgba(0, 240, 255, 0.05);
+    border-left: 3px solid var(--accent-cyan);
+    padding: 0.65rem 0.85rem;
+    font-size: 0.78rem;
+    color: var(--text-secondary);
+}
+
+/* ==========================================================================
+   PSEUDO-ELEMENT: ::cue & ::cue(v[voice="..."])
+   DIFFERENT WEBVTT SPEAKER VOICES STYLED DIFFERENTLY
+   ========================================================================== */
+::cue {
+    background-color: rgba(9, 12, 16, 0.95);
+    color: #ffffff;
+    font-family: var(--font-mono);
+    font-size: 1rem;
+    text-shadow: 0 0 5px #000000;
+}
+
+/* Speaker 1: Dispatch Control (Cyan Aesthetic) */
+::cue(v[voice="Dispatch Control"]) {
+    color: #00f0ff;
+    font-weight: bold;
+    border-bottom: 2px solid #00f0ff;
+}
+
+/* Speaker 2: Ambulance Operator (Amber Aesthetic) */
+::cue(v[voice="Ambulance Operator"]) {
+    color: #ffb300;
+    font-weight: bold;
+    border-bottom: 2px solid #ffb300;
+}
+
+/* Transcript Box */
+.transcript-box {
+    background: var(--bg-primary);
+    border: 1px solid var(--border-subtle);
+    border-radius: var(--radius-sm);
+    padding: 1rem;
+}
+
+.transcript-heading {
+    font-family: var(--font-mono);
+    font-size: 0.72rem;
+    color: var(--text-muted);
+    letter-spacing: 1px;
+    margin-bottom: 0.75rem;
+}
+
+.transcript-log {
+    list-style: none;
+    display: flex;
+    flex-direction: column;
+    gap: 0.65rem;
+}
+
+.transcript-line {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: baseline;
+    gap: 0.5rem;
+    font-family: var(--font-mono);
+    font-size: 0.82rem;
+    padding: 0.4rem 0.6rem;
+    border-radius: var(--radius-sm);
+}
+
+/* PSEUDO-CLASS: :nth-child() on transcript */
+.transcript-line:nth-child(odd) {
+    background: rgba(255, 255, 255, 0.02);
+}
+
+.t-stamp {
+    color: var(--text-muted);
+    font-size: 0.72rem;
+}
+
+.t-speaker {
+    font-weight: 700;
+}
+
+.speaker-dispatch .t-speaker {
+    color: var(--accent-cyan);
+}
+
+.speaker-ambulance .t-speaker {
+    color: var(--accent-amber);
+}
+
+.t-message {
+    color: var(--text-primary);
+}
+
+/* --------------------------------------------------------------------------
+   13. SECTION 8: INCIDENT DECISION RECORDER – IDR
+   AUTOMATIC NUMBERING USING CSS COUNTERS & PSEUDO-ELEMENTS
+   counter-reset, counter-increment, ::before, ::after
+   ========================================================================== */
+.idr-intro {
+    font-size: 0.85rem;
+    color: var(--text-secondary);
+    margin-bottom: 1.5rem;
+    line-height: 1.5;
+}
+
+.idr-timeline-list {
+    list-style: none;
+    counter-reset: idr-counter;
+    position: relative;
+    padding-left: 3rem;
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+}
+
+/* Continuous vertical timeline connector line via ::before on list */
+.idr-timeline-list::before {
+    content: "";
+    position: absolute;
+    top: 1rem;
+    bottom: 1rem;
+    left: 1.25rem;
+    width: 2px;
+    background: var(--border-technical);
+}
+
+.idr-step-item {
+    counter-increment: idr-counter;
+    position: relative;
+}
+
+/* Node marker with automatic counter via ::before */
+.idr-step-item::before {
+    content: counter(idr-counter, decimal-leading-zero);
+    position: absolute;
+    left: -3rem;
+    top: 0;
+    width: 2.25rem;
+    height: 2.25rem;
+    background: var(--bg-card);
+    border: 2px solid var(--accent-cyan);
+    border-radius: 50%;
+    color: var(--accent-cyan);
+    font-family: var(--font-mono);
+    font-size: 0.75rem;
+    font-weight: 900;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 0 10px rgba(0, 240, 255, 0.2);
+    z-index: 2;
+}
+
+.step-card {
+    background: var(--bg-card);
+    border: 1px solid var(--border-subtle);
+    border-radius: var(--radius-sm);
+    padding: 1rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0.4rem;
+    transition: all var(--transition-snappy);
+}
+
+.step-card:hover {
+    border-color: var(--accent-cyan);
+    transform: translateX(4px);
+}
+
+.step-meta {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-family: var(--font-mono);
+    font-size: 0.7rem;
+}
+
+.step-badge-code {
+    color: var(--accent-cyan);
+    background: rgba(0, 240, 255, 0.1);
+    padding: 0.15rem 0.35rem;
+    border-radius: var(--radius-sm);
+}
+
+.step-timestamp {
+    color: var(--text-muted);
+}
+
+.step-action-title {
+    font-size: 1rem;
+    font-weight: 800;
+    color: var(--text-contrast);
+}
+
+.step-body {
+    font-size: 0.82rem;
+    color: var(--text-secondary);
+    line-height: 1.4;
+}
+
+.step-status {
+    font-family: var(--font-mono);
+    font-size: 0.68rem;
+    font-weight: 800;
+    margin-top: 0.35rem;
+    align-self: flex-start;
+    padding: 0.2rem 0.4rem;
+    border-radius: var(--radius-sm);
+}
+
+.step-status.verified { background: var(--accent-green-glow); color: var(--accent-green); }
+.step-status.critical { background: var(--accent-red-glow); color: var(--accent-red); }
+.step-status.active { background: var(--accent-amber-glow); color: var(--accent-amber); }
+.step-status.locked { background: var(--accent-cyan-glow); color: var(--accent-cyan); }
+
+/* --------------------------------------------------------------------------
+   14. SECTION 9: HOSPITAL NETWORK
+   -------------------------------------------------------------------------- */
+.hospital-cards-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(17rem, 1fr));
+    gap: 1.25rem;
+}
+
+.hospital-card {
+    background: var(--bg-card);
+    border: 1px solid var(--border-subtle);
+    border-radius: var(--radius-sm);
+    padding: 1.25rem;
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+    transition: all var(--transition-snappy);
+}
+
+.hospital-card:hover {
+    border-color: var(--accent-cyan);
+    transform: translateY(-2px);
+}
+
+.hospital-card.card-dest-selected {
+    border-color: var(--accent-green);
+    box-shadow: 0 0 15px var(--accent-green-glow);
+}
+
+.hosp-header {
+    display: flex;
+    flex-direction: column;
+    gap: 0.35rem;
+}
+
+.hosp-name {
+    font-size: 1.05rem;
+    font-weight: 800;
+    color: var(--text-contrast);
+}
+
+.hosp-badge {
+    font-family: var(--font-mono);
+    font-size: 0.65rem;
+    font-weight: 800;
+    padding: 0.15rem 0.4rem;
+    border-radius: var(--radius-sm);
+    align-self: flex-start;
+}
+
+.badge-primary-cath { background: rgba(0, 240, 255, 0.15); color: var(--accent-cyan); }
+.badge-level1 { background: var(--accent-green-glow); color: var(--accent-green); border: 1px solid var(--accent-green); }
+.badge-critical { background: var(--accent-red-glow); color: var(--accent-red); }
+
+.hosp-metrics {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 0.5rem;
+    background: var(--bg-primary);
+    padding: 0.75rem;
+    border-radius: var(--radius-sm);
+}
+
+.h-metric {
+    display: flex;
+    flex-direction: column;
+    gap: 0.15rem;
+}
+
+.hm-label {
+    font-family: var(--font-mono);
+    font-size: 0.6rem;
+    color: var(--text-muted);
+}
+
+.hm-value {
+    font-family: var(--font-mono);
+    font-size: 0.8rem;
+    font-weight: 700;
+}
+
+.hosp-facilities {
+    display: flex;
+    flex-direction: column;
+    gap: 0.4rem;
+    flex-grow: 1;
+}
+
+.fac-label {
+    font-family: var(--font-mono);
+    font-size: 0.68rem;
+    color: var(--text-muted);
+}
+
+.fac-list {
+    list-style: square;
+    padding-left: 1.15rem;
+    font-size: 0.75rem;
+    color: var(--text-secondary);
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
+}
+
+.fac-list li::marker {
+    color: var(--accent-green);
+}
+
+.hosp-action-bar {
+    border-top: 1px solid var(--border-subtle);
+    padding-top: 0.75rem;
+    font-family: var(--font-mono);
+    font-size: 0.72rem;
+}
+
+.target-dest {
+    color: var(--accent-green);
+    font-weight: 800;
+}
+
+/* --------------------------------------------------------------------------
+   15. SECTION 10: PRINTABLE INCIDENT DOSSIER (CHALLENGE C2)
+   SCREEN STYLES & PSEUDO-ELEMENT ::first-letter
+   ========================================================================== */
+.dossier-screen-control {
+    background: var(--bg-card);
+    border: 1px solid var(--accent-amber);
+    padding: 1rem 1.25rem;
+    border-radius: var(--radius-sm);
+    margin-bottom: 1.5rem;
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+    font-size: 0.85rem;
+}
+
+.dossier-screen-control kbd {
+    background: var(--bg-primary);
+    border: 1px solid var(--border-technical);
+    padding: 0.2rem 0.4rem;
+    font-family: var(--font-mono);
+    border-radius: var(--radius-sm);
+    color: var(--accent-cyan);
+}
+
+.btn-print-screen {
+    background: var(--accent-amber);
+    color: #000000;
+    font-family: var(--font-mono);
+    font-size: 0.8rem;
+    font-weight: 800;
+    padding: 0.65rem 1.15rem;
+    border-radius: var(--radius-sm);
+    text-decoration: none;
+    transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+    display: inline-block;
+    box-shadow: 0 4px 12px rgba(255, 179, 0, 0.2);
+}
+
+.btn-print-screen:hover {
+    background: #ffffff;
+    box-shadow: 0 0 18px rgba(255, 179, 0, 0.45);
+    transform: translateY(-2px);
+}
+
+.btn-print-screen:active {
+    transform: translateY(1.5px) scale(0.975);
+}
+
+/* A4 Document on Screen */
+.a4-dossier-document {
+    background: #ffffff;
+    color: #111827;
+    border-radius: var(--radius-sm);
+    padding: 2.5rem;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+    font-family: "Georgia", serif;
+    line-height: 1.6;
+}
+
+.dossier-print-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    flex-wrap: wrap;
+    gap: 1rem;
+    border-bottom: 2px solid #111827;
+    padding-bottom: 1rem;
+}
+
+.print-seal {
+    font-family: var(--font-mono);
+    font-size: 0.75rem;
+    font-weight: 900;
+    letter-spacing: 2px;
+    color: #b91c1c;
+}
+
+.dossier-main-title {
+    font-family: var(--font-sans);
+    font-size: 1.4rem;
+    font-weight: 900;
+    color: #000000;
+    margin: 0.25rem 0;
+}
+
+.dossier-sub-title {
+    font-family: var(--font-mono);
+    font-size: 0.72rem;
+    color: #4b5563;
+}
+
+.dossier-barcode-block {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    font-family: var(--font-mono);
+    font-size: 0.75rem;
+}
+
+.dossier-ref-code {
+    font-weight: 900;
+    color: #000000;
+}
+
+.dossier-classification-stamp {
+    color: #b91c1c;
+    font-weight: 700;
+}
+
+.dossier-divider {
+    border: none;
+    border-top: 1px solid #d1d5db;
+}
+
+.dossier-data-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 0.85rem;
+    font-family: var(--font-sans);
+}
+
+.dossier-data-table th, .dossier-data-table td {
+    border: 1px solid #d1d5db;
+    padding: 0.55rem 0.75rem;
+    text-align: left;
+}
+
+.dossier-data-table th {
+    background: #f3f4f6;
+    font-weight: 700;
+    color: #374151;
+    width: 22%;
+    font-size: 0.78rem;
+    font-family: var(--font-mono);
+}
+
+.print-em {
+    color: #b91c1c;
+}
+
+.dossier-block-heading {
+    font-family: var(--font-sans);
+    font-size: 0.95rem;
+    font-weight: 800;
+    color: #111827;
+    border-bottom: 1px solid #e5e7eb;
+    padding-bottom: 0.35rem;
+    margin-bottom: 0.65rem;
+    letter-spacing: 0.5px;
+}
+
+.dossier-print-list {
+    list-style: square;
+    padding-left: 1.5rem;
+    font-size: 0.85rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0.35rem;
+}
+
+/* PSEUDO-ELEMENT: ::first-letter on incident narrative */
+.dossier-narrative::first-letter {
+    font-size: 2.2em;
+    font-weight: 900;
+    float: left;
+    line-height: 0.85;
+    margin-right: 0.35rem;
+    color: #b91c1c;
+    font-family: var(--font-sans);
+}
+
+.dossier-narrative {
+    font-size: 0.88rem;
+    line-height: 1.6;
+    color: #1f2937;
+}
+
+.dossier-link-audit {
+    font-size: 0.82rem;
+    color: #4b5563;
+    margin-bottom: 0.4rem;
+}
+
+.dossier-audit-links {
+    list-style: none;
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
+    font-family: var(--font-mono);
+    font-size: 0.8rem;
+}
+
+.dossier-audit-links a {
+    color: #1d4ed8;
+    text-decoration: underline;
+}
+
+.dossier-print-footer {
+    border-top: 2px solid #111827;
+    padding-top: 1rem;
+    margin-top: 1rem;
+}
+
+.signature-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 1.5rem;
+}
+
+.sig-box {
+    display: flex;
+    flex-direction: column;
+    gap: 0.35rem;
+}
+
+.sig-title {
+    font-family: var(--font-mono);
+    font-size: 0.68rem;
+    color: #4b5563;
+    font-weight: 700;
+}
+
+.sig-line {
+    border-bottom: 1px solid #000000;
+    padding-bottom: 0.4rem;
+    font-size: 0.85rem;
+    color: #000000;
+}
+
+.sig-meta {
+    font-family: var(--font-mono);
+    font-size: 0.65rem;
+    color: #6b7280;
+}
+
+/* Console Footer */
+.console-footer {
+    background: var(--bg-primary);
+    border-top: 1px solid var(--border-technical);
+    padding: 2rem 1.5rem;
+}
+
+.footer-inner {
+    max-width: 90rem;
+    margin: 0 auto;
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    gap: 1.5rem;
+}
+
+.footer-brand {
+    font-family: var(--font-mono);
+    font-size: 0.95rem;
+    font-weight: 900;
+    color: var(--accent-cyan);
+    letter-spacing: 1.5px;
+}
+
+.footer-meta {
+    font-size: 0.8rem;
+    color: var(--text-secondary);
+    margin-top: 0.35rem;
+}
+
+.footer-rules {
+    font-family: var(--font-mono);
+    font-size: 0.72rem;
+    color: var(--accent-green);
+    margin-top: 0.25rem;
+}
+
+.footer-right {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    gap: 0.5rem;
+}
+
+.footer-nav {
+    list-style: none;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 1rem;
+}
+
+.footer-link {
+    font-family: var(--font-mono);
+    font-size: 0.78rem;
+    color: var(--text-secondary);
+    text-decoration: none;
+}
+
+.footer-link:hover {
+    color: var(--accent-cyan);
+}
+
+.footer-copy {
+    font-family: var(--font-mono);
+    font-size: 0.7rem;
+    color: var(--text-muted);
+}
+
+
+/* ==========================================================================
+   ==========================================================================
+   CONTEXT-AWARE CSS MEDIA QUERIES (AT LEAST 10 IMPLEMENTATIONS)
+   CATEGORIES: Viewport, Input, User Preference, Output, Display
+   ==========================================================================
+   ========================================================================== */
+
+/* --------------------------------------------------------------------------
+   CATEGORY A: VIEWPORT ADAPTATION
+   1. Narrow Mobile Adaptation (Using CSS Range Syntax width <= 30rem)
+   -------------------------------------------------------------------------- */
+@media (width <= 30rem) {
+    /* Prioritize Emergency Address First on Narrow Mobile */
+    .incident-core-details {
+        display: flex;
+        flex-direction: column;
+    }
+
+    .location-block {
+        order: -1; /* Hoists location to the very top */
+        background: rgba(255, 42, 68, 0.1);
+        border: 1px solid var(--accent-red);
+    }
+
+    .incident-location-address {
+        font-size: 1rem;
+        font-weight: 700;
+    }
+
+    /* Swap Detailed Vector Map for Simplified Mobile Emergency Turn-by-Turn */
+    .route-desktop-view {
+        display: none;
+    }
+
+    .route-mobile-view {
+        display: flex;
+    }
+
+    .mobile-emergency-banner {
+        background: var(--accent-red);
+        color: #ffffff;
+        padding: 0.75rem 1rem;
+        border-radius: var(--radius-sm);
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+        font-family: var(--font-mono);
+        font-size: 0.75rem;
+    }
+
+    .mobile-turn-list {
+        display: flex;
+        flex-direction: column;
+        gap: 0.65rem;
+    }
+
+    .mobile-turn-item {
+        background: var(--bg-card);
+        border: 1px solid var(--border-subtle);
+        padding: 0.75rem;
+        border-radius: var(--radius-sm);
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+    }
+
+    .mobile-turn-item.current-step {
+        border-color: var(--accent-green);
+        background: rgba(0, 230, 118, 0.05);
+    }
+
+    .turn-step-badge {
+        background: var(--accent-cyan);
+        color: var(--bg-primary);
+        font-family: var(--font-mono);
+        font-size: 0.68rem;
+        font-weight: 900;
+        padding: 0.25rem 0.5rem;
+        border-radius: var(--radius-sm);
+    }
+
+    .turn-desc {
+        display: flex;
+        flex-direction: column;
+        font-size: 0.8rem;
+    }
+
+    .turn-desc span {
+        color: var(--text-secondary);
+        font-size: 0.72rem;
+    }
+
+    .mobile-vital-stats {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 0.5rem;
+        background: var(--bg-card);
+        padding: 0.75rem;
+        border-radius: var(--radius-sm);
+        text-align: center;
+    }
+
+    .ms-label {
+        font-family: var(--font-mono);
+        font-size: 0.6rem;
+        color: var(--text-muted);
+        display: block;
+    }
+
+    .ms-val {
+        font-family: var(--font-mono);
+        font-size: 0.85rem;
+        font-weight: 900;
+        color: var(--text-contrast);
+    }
+
+    /* Simplify Ambulance Details for Mobile */
+    .ambulance-card .card-telemetry-drawer {
+        display: none;
+    }
+}
+
+/* --------------------------------------------------------------------------
+   CATEGORY A: VIEWPORT ADAPTATION
+   2. Tablet & Desktop Dashboard View (Using CSS Range Syntax width >= 48rem)
+   -------------------------------------------------------------------------- */
+@media (width >= 48rem) {
+    .console-main {
+        padding: 2rem;
+        gap: 3rem;
+    }
+
+    .dashboard-grid {
+        grid-template-columns: repeat(5, 1fr);
+    }
+
+    .options-3col {
+        grid-template-columns: repeat(3, 1fr);
+    }
+}
+
+/* --------------------------------------------------------------------------
+   CATEGORY A: VIEWPORT ADAPTATION
+   3. Landscape Tablet / Terminal Console View
+   -------------------------------------------------------------------------- */
+@media (orientation: landscape) and (max-height: 45rem) {
+    .command-header {
+        position: static; /* Prevent taking vertical real estate */
+    }
+
+    .route-desktop-view {
+        display: grid;
+        grid-template-columns: 2fr 1fr;
+        gap: 1rem;
+        align-items: center;
+    }
+
+    .route-telemetry-hud {
+        grid-template-columns: 1fr;
+    }
+
+    .console-section {
+        padding: 1rem;
+    }
+}
+
+/* --------------------------------------------------------------------------
+   CATEGORY A: VIEWPORT ADAPTATION
+   4. Ultra-Wide Command Operations Wall (min-width: 80rem / 1280px)
+   -------------------------------------------------------------------------- */
+@media (min-width: 80rem) {
+    .console-main {
+        max-width: 95rem;
+    }
+
+    .stat-value {
+        font-size: 2.75rem;
+    }
+}
+
+/* --------------------------------------------------------------------------
+   CATEGORY B: INPUT ADAPTATION
+   5. Desktop Fine Pointer & Hover Capability
+   -------------------------------------------------------------------------- */
+@media (hover: hover) and (pointer: fine) {
+    .ambulance-card:hover {
+        border-color: var(--accent-cyan);
+        transform: translateY(-4px);
+    }
+
+    .wizard-option-card:hover .opt-body {
+        border-color: rgba(0, 240, 255, 0.5);
+    }
+
+    .stat-card:hover {
+        background: var(--bg-card-alt);
+    }
+}
+
+/* --------------------------------------------------------------------------
+   CATEGORY B: INPUT ADAPTATION
+   6. Touch Screen / Coarse Pointer Target Optimization (pointer: coarse)
+   -------------------------------------------------------------------------- */
+@media (pointer: coarse) {
+    /* Touch target minimum size >= 48px according to WCAG 2.5.5 */
+    .nav-link {
+        padding: 0.85rem 1.15rem;
+        font-size: 0.9rem;
+    }
+
+    .prio-label {
+        padding: 0.75rem 1rem;
+        min-height: 48px;
+    }
+
+    .filter-chip {
+        padding: 0.65rem 1rem;
+        min-height: 44px;
+        display: inline-flex;
+        align-items: center;
+    }
+
+    .wizard-option-card .opt-body {
+        padding: 1.25rem 1rem;
+        min-height: 85px;
+    }
+
+    .btn-print-screen {
+        padding: 0.85rem 1.25rem;
+        min-height: 48px;
+    }
+}
+
+/* --------------------------------------------------------------------------
+   CATEGORY C: USER PREFERENCE
+   7. Operational Midnight Dark Theme (prefers-color-scheme: dark)
+   -------------------------------------------------------------------------- */
+@media (prefers-color-scheme: dark) {
+    :root {
+        --bg-primary: #05080c;
+        --bg-secondary: #0c121a;
+        --bg-card: #121a24;
+        --text-primary: #f0f6fc;
+    }
+}
+
+/* --------------------------------------------------------------------------
+   CATEGORY C: USER PREFERENCE
+   8. Daytime Tactical Alert Theme (prefers-color-scheme: light)
+   -------------------------------------------------------------------------- */
+@media (prefers-color-scheme: light) {
+    :root {
+        --bg-primary: #f4f6f9;
+        --bg-secondary: #ffffff;
+        --bg-card: #eef2f6;
+        --bg-card-alt: #e3e8ef;
+        --text-primary: #0f172a;
+        --text-secondary: #475569;
+        --text-muted: #64748b;
+        --text-contrast: #020617;
+        --border-subtle: #cbd5e1;
+        --border-technical: #0284c7;
+    }
+
+    body {
+        background-color: var(--bg-primary);
+        background-image: 
+            linear-gradient(to right, rgba(2, 132, 199, 0.05) 1px, transparent 1px),
+            linear-gradient(to bottom, rgba(2, 132, 199, 0.05) 1px, transparent 1px);
+    }
+
+    .tactical-audio-player {
+        filter: none;
+    }
+}
+
+/* --------------------------------------------------------------------------
+   CATEGORY C: USER PREFERENCE
+   9. Reduced Motion Adaptation (prefers-reduced-motion: reduce)
+   -------------------------------------------------------------------------- */
+@media (prefers-reduced-motion: reduce) {
+    *, *::before, *::after {
+        animation-duration: 0.001ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: 0.001ms !important;
+        scroll-behavior: auto !important;
+    }
+
+    .emblem-pulse,
+    .banner-beacon,
+    .tan-ping,
+    .heartbeat-icon,
+    .ecg-sweep-bar {
+        display: none !important;
+        animation: none !important;
+    }
+
+    .pulse-dot,
+    .beacon-pulse-mini,
+    .metric-critical,
+    .meter-bar,
+    .ecg-line-path,
+    .tracker-fill-bar,
+    .tracker-ambulance-node,
+    .slide-in-banner,
+    .tf-value-dynamic,
+    .tg-body,
+    .incident-drawer-body {
+        animation: none !important;
+        transform: none !important;
+    }
+
+    .tracker-fill-bar {
+        width: 48% !important;
+    }
+
+    .tracker-ambulance-node {
+        left: 48% !important;
+    }
+
+    .slide-in-banner {
+        opacity: 1 !important;
+        transform: none !important;
+        max-height: none !important;
+        margin-bottom: 1.5rem !important;
+    }
+
+    /* Replace animated pulses with distinct high-contrast static borders */
+    .telemetry-badge {
+        border-width: 2px;
+        border-style: solid;
+    }
+
+    .metric-critical {
+        border: 2px solid var(--accent-red) !important;
+    }
+}
+
+/* --------------------------------------------------------------------------
+   CATEGORY C: USER PREFERENCE
+   10. High Contrast Mode Adaptation (prefers-contrast: more)
+   -------------------------------------------------------------------------- */
+@media (prefers-contrast: more) {
+    :root {
+        --border-subtle: #ffffff;
+        --border-technical: #ffffff;
+        --text-secondary: #ffffff;
+        --text-muted: #e2e8f0;
+    }
+
+    .console-section, .incident-card, .stat-card, .wizard-stage, .ambulance-card, .hospital-card {
+        border: 2px solid #ffffff !important;
+    }
+
+    .prio-label, .filter-chip, .wizard-option-card .opt-body {
+        border: 2px solid #ffffff;
+    }
+
+    a {
+        text-decoration: underline !important;
+    }
+}
+
+/* --------------------------------------------------------------------------
+   CATEGORY D: OUTPUT ADAPTATION
+   11. Official A4 Printable Incident Dossier (Challenge C2: @media print)
+   -------------------------------------------------------------------------- */
+@media print {
+    /* Strict A4 Print Page Setup */
+    @page {
+        size: A4 portrait;
+        margin: 15mm;
+    }
+
+    /* Reset Background & Hide All Interactive Console Elements */
+    body {
+        background: #ffffff !important;
+        color: #000000 !important;
+        font-family: "Georgia", serif !important;
+        font-size: 10pt;
+        line-height: 1.4;
+    }
+
+    .command-header,
+    .command-nav,
+    .overview-section,
+    .incident-section,
+    .wizard-section,
+    .fleet-section,
+    .route-section,
+    .audio-section,
+    .idr-section,
+    .hospital-section,
+    .console-footer,
+    .screen-only,
+    .skip-to-content {
+        display: none !important;
+    }
+
+    /* Display Only the Incident Dossier */
+    .dossier-section {
+        background: transparent !important;
+        border: none !important;
+        padding: 0 !important;
+        box-shadow: none !important;
+        display: block !important;
+    }
+
+    .a4-dossier-document {
+        padding: 0 !important;
+        box-shadow: none !important;
+        border: none !important;
+        width: 100% !important;
+    }
+
+    /* Challenge Requirement: Print Hyperlinks via attr(href) */
+    a::after {
+        content: " (" attr(href) ")" !important;
+        font-size: 8pt !important;
+        font-weight: normal !important;
+        color: #374151 !important;
+    }
+
+    /* Pagination & Break Inside Protection */
+    .print-avoid-break {
+        break-inside: avoid;
+        page-break-inside: avoid;
+    }
+
+    .dossier-data-table {
+        break-inside: avoid;
+        border: 1px solid #000000 !important;
+    }
+
+    .dossier-data-table th, .dossier-data-table td {
+        border: 1px solid #000000 !important;
+        color: #000000 !important;
+    }
+
+    .dossier-print-header {
+        border-bottom: 2pt solid #000000 !important;
+    }
+
+    .dossier-print-footer {
+        border-top: 2pt solid #000000 !important;
+    }
+}
+
+/* --------------------------------------------------------------------------
+   CATEGORY E: DISPLAY ADAPTATION
+   12. Retina & High-DPI Displays (resolution >= 2dppx)
+   -------------------------------------------------------------------------- */
+@media (resolution >= 2dppx) {
+    .ambulance-art, .route-svg-object {
+        image-rendering: -webkit-optimize-contrast;
+    }
+}
+
